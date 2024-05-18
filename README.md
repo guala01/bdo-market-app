@@ -8,7 +8,7 @@ The second goal is to provide access to the marketplace registration queue that 
 
 The project employs a modern tech stack to deliver a responsive and secure user experience. Below are the primary technologies and architecture components used:
 
-- **Backend**: Node.js with Express framework
+- **Backend**: Node.js with Express framework, Python for API scraping
 - **Database**: PostgreSQL
 - **ORM**: Sequelize
 - **Frontend**: Vanilla JavaScript with Bootstrap
@@ -24,6 +24,8 @@ The project structure includes separate modules for routes, models, configuratio
 - **Logout Functionality**: Allows users to log out from the application and refreshes to de-authorize them.
 - **User Registrations**: Displays a table of items the user is registered for based on the `registrations.json` file. This data is dynamically reloaded whenever the user refreshes the page.
 - **Customizable Sales Data**: Users can choose to see sales data for the last 7 days, 3 days, or 24 hours using buttons on the dashboard.
+- **API Scraping**: Uses a Python script to scrape the BDO marketplace API for sales data.
+- **Discord Bot**: A bot that allows users to register for an item and get notified ahead when the item is registered.
 
 ## Getting started with the SPA
 
