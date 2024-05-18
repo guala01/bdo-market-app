@@ -90,8 +90,11 @@ Ensure you have the following installed on your computer:
    ```
 
    Run the `scripts/scrape.py` script to create the base market data json file. This script needs to be ran if the game adds new Pearl Items to the marketplace.
+
    Run the `scripts/newmain.py` script to populate the database with the market data, this script should be ran as often as you want to have more data points and more accurate sales overtime and preorder time estimations.
+
    (if you have less than a few days worth of snapshots the query to retrieves salves might fail)
+
    Run the `scripts/waitinglist.py` to to create the json containing the current waiting list data, this script should be ran very often to always have the most up to date waiting list data to be able to notify the user in time.
 
 6. **Run Discord bot:**
