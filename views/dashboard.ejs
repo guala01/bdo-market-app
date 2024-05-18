@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">Dashboard</h1>
+        <p>Welcome, <%= user.username %>!</p>
+        <button id="logoutButton" class="btn btn-danger">Logout</button>
+
+        <h2 class="mt-4">Pearl Items Sales in <span id="timeRange">x</span> days</h2>
+        <div class="btn-group mt-2" role="group" aria-label="Time Range Buttons">
+            <button type="button" class="btn btn-primary" id="btn7Days">7 Days</button>
+            <button type="button" class="btn btn-secondary" id="btn3Days">3 Days</button>
+            <button type="button" class="btn btn-info" id="btn24Hours">24 Hours</button>
+        </div>
+
+        <div id="loadingIndicator" class="mt-4" style="display: none;">Loading data...</div>
+
+        <table class="table table-striped mt-4">
+            <thead>
+                <tr>
+                    <th>Item Name</th>
+                    <th>Sales in Days</th>
+                    <th>Estimated Waiting Time</th>
+                </tr>
+            </thead>
+            <tbody id="dataTable">
+                <!-- Data table from JS -->
+            </tbody>
+        </table>
+        <div id="userRegistrationsSection" class="mt-5">
+            <h2>User <%= user.username %> is registered for:</h2>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Enhancement Level</th>
+                    </tr>
+                </thead>
+                <tbody id="userRegistrationsTable">
+                    <!-- User table from JS -->
+                </tbody>
+            </table>
+            <p id="noRegistrationsMessage" class="text-muted">No registered items</p>
+        </div>
+    </div>
+    <script>
+        document.getElementById('logoutButton').addEventListener('click', function() {
+            fetch('/logout', {
+                method: 'POST',
+                credentials: 'same-origin'
+            }).then(response => {
+                if (response.ok) {
+                    window.location.href = '/login';
+                } else {
+                    alert('Logout failed');
+                }
+            }).catch(error => {
+                console.error('Error during logout:', error);
+            });
+        });
+
+        function fetchData(days) {
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const dataTable = document.getElementById('dataTable');
+            loadingIndicator.style.display = 'block';
+            dataTable.innerHTML = '';  
+
+            fetch(`/api/dashboardData?days=${days}`, {
+                method: 'GET',
+                credentials: 'same-origin'
+            }).then(response => response.json())
+            .then(data => {
+                loadingIndicator.style.display = 'none';
+                dataTable.innerHTML = '';  
+                if (data.length > 0) {
+                    data.forEach(item => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${item.name}</td>
+                            <td>${item.sales_difference}</td>
+                            <td>${item.estimated_preorder_time}</td>
+                        `;
+                        dataTable.appendChild(row);
+                    });
+                } else {
+                    const row = document.createElement('tr');
+                    row.innerHTML = '<td colspan="3" class="text-center">No data available</td>';
+                    dataTable.appendChild(row);
+                }
+            }).catch(error => {
+                loadingIndicator.style.display = 'none';
+                console.error('Error fetching data:', error);
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="3" class="text-center text-danger">Error fetching data</td>';
+                dataTable.appendChild(row);
+            });
+        }
+
+        //We default to 7 days when page is first rendered
+        fetchData(7);
+
+        fetch('/user-registrations', {
+            method: 'GET',
+            credentials: 'same-origin'
+        }).then(response => response.json())
+        .then(data => {
+            const userRegistrationsTable = document.getElementById('userRegistrationsTable');
+            const noRegistrationsMessage = document.getElementById('noRegistrationsMessage');
+            if (data.length > 0) {
+                noRegistrationsMessage.style.display = 'none';
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.item_name}</td>
+                        <td>${item.enhancement_level}</td>
+                    `;
+                    userRegistrationsTable.appendChild(row);
+                });
+            } else {
+                noRegistrationsMessage.style.display = 'block';
+            }
+        }).catch(error => {
+            console.error('Error fetching user registrations:', error);
+        });
+
+        
+        document.getElementById('btn7Days').addEventListener('click', function() {
+            document.getElementById('timeRange').textContent = '7';
+            fetchData(7);
+        });
+
+        document.getElementById('btn3Days').addEventListener('click', function() {
+            document.getElementById('timeRange').textContent = '3';
+            fetchData(3);
+        });
+
+        document.getElementById('btn24Hours').addEventListener('click', function() {
+            document.getElementById('timeRange').textContent = '1';
+            fetchData(1);
+        });
+    </script>
+</body>
+</html>
